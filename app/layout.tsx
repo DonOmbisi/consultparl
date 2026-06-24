@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { PostHogProvider } from './providers';
 import { AuthInitializer } from "@/app/components/auth/auth-initializer";
+import { Analytics } from '@vercel/analytics/next'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,9 +17,9 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL || "https://consultralph.com"
+    process.env.NEXT_PUBLIC_APP_URL || "https://parl.co.ke"
   ),
-  title: "Consult Ralph | AI-Powered Deep Research for Consultants",
+  title: " Parl AI | AI-Powered Deep Research for Consultants",
   description:
     "Generate comprehensive research reports for due diligence, market analysis, competitive landscapes, and strategic insights. Built for consultants at top firms. EY, Deloitte, PwC, KPMG, McKinsey, BCG, Bain, investment banks and any consultant",
   keywords: [
@@ -33,9 +34,9 @@ export const metadata: Metadata = {
     "EY",
     ""
   ],
-  authors: [{ name: "ConsultRalph Intelligence" }],
-  creator: "ConsultRalph Intelligence",
-  publisher: "ConsultRalph Intelligence",
+  authors: [{ name: " Parl AI Intelligence" }],
+  creator: "Parl AI Intelligence",
+  publisher: "Parl AI Intelligence",
   icons: {
     icon: [
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
