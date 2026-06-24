@@ -104,6 +104,7 @@ export default function RootLayout({
         <PostHogProvider>
           <AuthInitializer>{children}</AuthInitializer>
         </PostHogProvider>
+        <Analytics />
       </body>
     </html>
   );
