@@ -3,7 +3,7 @@
 export default function GitHubCorner() {
   return (
     <a
-      href="https://github.com/unicodeveloper/consultralph"
+      href="https://github.com/DonOmbisi/Parl-AI"
       target="_blank"
       rel="noopener noreferrer"
       className="github-corner fixed top-0 right-0 z-50"
