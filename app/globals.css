@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@plugin "@tailwindcss/typography";
+@import "C:/Users/donmi/Music/parl1/consult-ralph/node_modules/tailwindcss";
+@plugin "C:/Users/donmi/Music/parl1/consult-ralph/node_modules/@tailwindcss/typography";
 
 :root {
   --background: oklch(1.0000 0 0);

@@ -14,6 +14,7 @@ import { DottedGlowBackground } from "@/components/ui/dotted-glow-background";
 import { ResearchHistoryItem, saveToHistory, updateHistoryStatus } from "./lib/researchHistory";
 import { useAuthStore } from "./stores/auth-store";
 import { requestNotificationPermission, sendCompletionNotification } from "./lib/notifications";
+import ParlIntelligence from "./components/ParlIntelligence";
 
 interface ResearchResult {
   status: string;
@@ -126,6 +127,52 @@ function HomeContent() {
         ) {
           if (data.status === "completed") {
             sendCompletionNotification(currentResearchTitle || "Your research");
+
+            // ── PARL Intelligence: auto-seed the knowledge graph ──────────────
+            // Fire-and-forget: extract structured findings from the report,
+            // then seed the client graph. Runs silently — no UI state changes.
+            const reportText = typeof data.output === "string" ? data.output : null;
+            if (reportText) {
+              (async () => {
+                try {
+                  // Step 1: extract structured findings from the research output
+                  const extractRes = await fetch("/api/parl/extract", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ report: reportText }),
+                  });
+                  if (!extractRes.ok) {
+                    console.warn("[PARL] Extraction failed:", await extractRes.text());
+                    return;
+                  }
+                  const findings = await extractRes.json();
+
+                  // Step 2: seed the client knowledge graph
+                  const seedRes = await fetch("/api/parl/seed", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      organization_name: currentResearchTitle || "Unknown Organization",
+                      sector: findings.sector ?? null,
+                      findings,
+                    }),
+                  });
+                  if (seedRes.ok) {
+                    const seedResult = await seedRes.json();
+                    console.info(
+                      `[PARL] Graph seeded for '${seedResult.client_id}': ` +
+                      `${seedResult.entities_added} entities, ${seedResult.relationships_added} relationships.`
+                    );
+                  } else {
+                    console.warn("[PARL] Seed failed:", await seedRes.text());
+                  }
+                } catch (err) {
+                  // Non-blocking — research result is still shown regardless
+                  console.warn("[PARL] Auto-seed error (non-blocking):", err);
+                }
+              })();
+            }
+            // ─────────────────────────────────────────────────────────────────
           }
           clearPolling();
           setIsResearching(false);
@@ -764,6 +811,11 @@ function HomeContent() {
                 </div>
               </div>
 
+              {/* ── PARL Intelligence ─────────────────────────────────────────── */}
+              <div className="mt-12 sm:mt-16 w-full max-w-3xl px-2 border-t border-border pt-10">
+                <ParlIntelligence />
+              </div>
+
               {/* Footer */}
               <footer className="mt-8 sm:mt-12 text-center text-xs sm:text-sm text-text-muted px-2">
                 <p>
@@ -815,6 +867,11 @@ function HomeContent() {
                 onFollowUp={isAuthenticated ? handleFollowUp : undefined}
                 currentTaskId={currentTaskId}
               />
+
+              {/* ── PARL Intelligence (always available below results) ────────── */}
+              <div className="mt-10 border-t border-border pt-8">
+                <ParlIntelligence />
+              </div>
             </div>
           )}
         </main>
