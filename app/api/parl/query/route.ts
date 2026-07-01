@@ -6,29 +6,31 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    const response = await fetch(`${PARL_BACKEND_URL}/query/ask`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
+    try {
+      const response = await fetch(`${PARL_BACKEND_URL}/query`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      return NextResponse.json(
-        { error: `Backend error: ${errorText}` },
-        { status: response.status }
-      );
+      if (response.ok) {
+        const data = await response.json();
+        return NextResponse.json(data);
+      }
+    } catch (e) {
+      console.warn("Backend query endpoint not available yet:", e);
     }
 
-    const data = await response.json();
-    return NextResponse.json(data);
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Internal server error in proxy";
-    console.error("Error in /api/parl/query proxy:", error);
+    // Return the placeholder message as requested by the Stage Five spec
+    return NextResponse.json({
+      answer: "The PARL Intelligence query engine is currently offline or not yet fully implemented. It will be available when Stage Ten is complete.",
+      evidence: "System placeholder response."
+    });
+  } catch (error: any) {
     return NextResponse.json(
-      { error: message },
+      { error: error.message || "Internal server error in query proxy" },
       { status: 500 }
     );
   }
